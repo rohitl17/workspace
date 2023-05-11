@@ -31,11 +31,15 @@ async def generate_description(image: UploadFile = File(...)):
     image = await image.read()
 
     image_obj = Image.open(BytesIO(image))
+    image_contents = image_obj.read()
+
+    # Compute the hash of the image contents
+    image_hash = hash(image_contents)
     image_input = preprocess(image_obj).unsqueeze(0).to(device)
     text_inputs = torch.cat([clip.tokenize(f"a photo of a {c}") for c in cifar100.classes]).to(device)
 
     # Calling the check description function to check if the image exists
-    result=check_description(image_obj)['description']
+    result=check_description(image_hash)['description']
     # Returns None if the image is not found and continues to generate the result
     if result is not None:
         return JSONResponse(content=result)
@@ -59,7 +63,7 @@ async def generate_description(image: UploadFile = File(...)):
         result[cifar100.classes[index]] = 100 * value.item()
 
     # Adds results to the cache dict in case of new image
-    cache_dict[image_obj]=result
+    cache_dict[image_hash]=result
     return JSONResponse(content=result)
 
 # Initialize the cache and cache statistics
