@@ -30,11 +30,12 @@ async def generate_description(image: UploadFile = File(...)):
     global cache_dict
     image = await image.read()
 
-    image_obj = Image.open(BytesIO(image))
-    image_contents = image_obj.read()
-
     # Compute the hash of the image contents
+    image_bytes=BytesIO(image)
+    image_contents = image_bytes.read()
     image_hash = hash(image_contents)
+
+    image_obj = Image.open(BytesIO(image))
     image_input = preprocess(image_obj).unsqueeze(0).to(device)
     text_inputs = torch.cat([clip.tokenize(f"a photo of a {c}") for c in cifar100.classes]).to(device)
 
