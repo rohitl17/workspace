@@ -31,8 +31,8 @@ async def generate_description(image: UploadFile = File(...)):
     image = await image.read()
 
     # Compute the hash of the image contents
-    image_bytes=BytesIO(image)
-    image_contents = image_bytes.read()
+    #image_bytes=BytesIO(image)
+    image_contents = image
     image_hash = hash(image_contents)
 
     image_obj = Image.open(BytesIO(image))
